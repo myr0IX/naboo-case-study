@@ -16,6 +16,7 @@ import Signup from "@/graphql/mutations/auth/signup";
 import GetUser from "@/graphql/queries/auth/getUser";
 import { useSnackbar } from "@/hooks";
 import { useLazyQuery, useMutation } from "@apollo/client";
+import { get } from "http";
 import { useRouter } from "next/router";
 import { createContext, useEffect, useState } from "react";
 
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [getUser, user]);
 
   const handleSignin = async (input: SignInInput) => {
     try {
