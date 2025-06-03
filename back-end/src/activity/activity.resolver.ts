@@ -23,7 +23,7 @@ import { ContextWithJWTPayload } from 'src/auth/types/context';
 export class ActivityResolver {
   constructor(
     private readonly activityService: ActivityService,
-    private readonly userServices: UserService,
+    private readonly userServices: UserService, // use this var for get role of the user
   ) {}
 
   @ResolveField(() => ID)
@@ -83,4 +83,6 @@ export class ActivityResolver {
   ): Promise<Activity> {
     return this.activityService.create(context.jwtPayload.id, createActivity);
   }
+
+  // TODO: add resolver for admin to get all activities with createdAt in bonus
 }
