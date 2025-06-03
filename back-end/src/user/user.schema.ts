@@ -29,6 +29,8 @@ export class User extends Document {
 
   @Prop()
   token?: string;
+
+  // TODO: add rule for favorite activities
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
