@@ -9,7 +9,11 @@ import {
   ResolveField,
   ID,
 } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import {
+  ForbiddenException,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ActivityService } from './activity.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserService } from 'src/user/user.service';
@@ -36,6 +40,28 @@ export class ActivityResolver {
     await activity.populate('owner');
     return activity.owner;
   }
+
+  @ResolveField(() => Date)
+  @UseGuards(AuthGuard)
+  async createdAt(
+    @Parent() activity: Activity,
+    @Context() context: ContextWithJWTPayload,
+  ): Promise<Date> {
+    try {
+      if (!context.jwtPayload || !context.jwtPayload.id) {
+        throw new UnauthorizedException('JWT payload missing or invalid');
+      }
+      const user = await this.userServices.getById(context.jwtPayload.id);
+      if (user.role != 'admin') {
+        throw new ForbiddenException();
+      }
+    } catch (error) {
+      console.error('createdAt Error:');
+      console.error(String(error));
+    }
+    return activity.createdAt;
+  }
+  // TODO: add resolver for admin to get all activities with createdAt in bonus
 
   @Query(() => [Activity])
   async getActivities(): Promise<Activity[]> {
@@ -84,5 +110,18 @@ export class ActivityResolver {
     return this.activityService.create(context.jwtPayload.id, createActivity);
   }
 
-  // TODO: add resolver for admin to get all activities with createdAt in bonus
+  @Mutation()
+  @UseGuards(AuthGuard)
+  async addFavoriteToUser(
+    @Context() context: ContextWithJWTPayload,
+    @Args('id') id: string,
+  ) {
+    try {
+      const activity = await this.activityService.findOne(id);
+      this.userServices.addFavoriteActivity(context.jwtPayload.id, activity);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }

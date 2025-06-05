@@ -1,7 +1,18 @@
 import { ActivityFragment } from "@/graphql/generated/types";
 import { useGlobalStyles } from "@/utils";
-import { Badge, Button, Card, Grid, Group, Image, Text } from "@mantine/core";
+import {
+  Badge,
+  Button,
+  Card,
+  Grid,
+  Group,
+  Image,
+  Text,
+  ActionIcon,
+} from "@mantine/core";
+import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import Link from "next/link";
+import { useState } from "react";
 
 interface ActivityProps {
   activity: ActivityFragment;
@@ -9,16 +20,36 @@ interface ActivityProps {
 
 export function Activity({ activity }: ActivityProps) {
   const { classes } = useGlobalStyles();
-
+  const [favorite, setFavorite] = useState(false);
+  
   return (
     <Grid.Col span={4}>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Card
+        shadow="sm"
+        padding="lg"
+        radius="md"
+        withBorder
+        style={{ position: "relative" }}
+      >
         <Card.Section>
           <Image
             src="https://dummyimage.com/480x4:3"
             height={160}
             alt="random image of city"
           />
+          <ActionIcon
+            variant="light"
+            color={favorite ? "red" : "gray"}
+            onClick={() => setFavorite((prev) => !prev)}
+			style={{
+				position: "absolute",
+				top: 10,
+				right: 10,
+				zIndex: 1
+			}}
+          >
+            {favorite ? <IconHeartFilled /> : <IconHeart />}
+          </ActionIcon>
         </Card.Section>
 
         <Group position="apart" mt="md" mb="xs">

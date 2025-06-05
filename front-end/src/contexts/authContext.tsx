@@ -30,7 +30,7 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  isLoading: false,
+  isLoading: true,
   handleSignin: () => Promise.resolve(),
   handleSignup: () => Promise.resolve(),
   handleLogout: () => Promise.resolve(),
@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const token = response.data?.login?.access_token || "";
       localStorage.setItem("token", token);
       await getUser().then((res) => setUser(res.data?.getMe || null));
+      console.debug(user);
       router.push("/profil");
     } catch (err) {
       snackbar.error("Une erreur est survenue");

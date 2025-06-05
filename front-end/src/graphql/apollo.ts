@@ -7,4 +7,5 @@ export const graphqlClient = new ApolloClient({
     credentials: "include",
   }),
   ssrMode: typeof window === "undefined",
+  connectToDevTools: typeof window !== "undefined",
 });

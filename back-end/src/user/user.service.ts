@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { SignUpInput } from 'src/auth/types';
 import { User } from './user.schema';
 import * as bcrypt from 'bcrypt';
+import { Activity } from 'src/activity/activity.schema';
 
 @Injectable()
 export class UserService {
@@ -73,5 +74,16 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  async addFavoriteActivity(userId: string, activity: Activity): Promise<User> {
+    const user = await this.getById(userId);
+    user.favorites ??= [];
+    if (!user.favorites.includes(activity)) {
+      user.favorites.push(activity);
+      await user.save();
+    }
+
+    return user.populate('favorites');
   }
 }

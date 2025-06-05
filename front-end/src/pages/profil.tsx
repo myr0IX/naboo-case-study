@@ -2,7 +2,7 @@ import { PageTitle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import { withAuth } from "@/hocs";
 import { useAuth } from "@/hooks";
-import { Avatar, Flex, Text } from "@mantine/core";
+import { Avatar, Flex, HoverCard, Text } from "@mantine/core";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 
@@ -23,7 +23,7 @@ const Profile = (props: ProfileProps) => {
       </Head>
       <PageTitle title="Mon profil" />
       <Flex align="center" gap="md">
-        <Avatar color="cyan" radius="xl" size="lg">
+        <Avatar color="cyan" radius="xl" size="lg" >
           {user?.firstName[0]}
           {user?.lastName[0]}
         </Avatar>
@@ -31,6 +31,7 @@ const Profile = (props: ProfileProps) => {
           <Text>{user?.email}</Text>
           <Text>{user?.firstName}</Text>
           <Text>{user?.lastName}</Text>
+          <Text>Role: {user?.role}</Text>
         </Flex>
       </Flex>
     </>

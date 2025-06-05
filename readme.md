@@ -46,5 +46,10 @@ npm run generate-types
 
 ## Connection informations
 
+user:
 email: user1@test.fr
 password: user1
+
+admin:
+email: admin@test.fr
+password : admin

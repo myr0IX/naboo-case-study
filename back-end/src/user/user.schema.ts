@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Activity } from '../activity/activity.schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -8,6 +9,7 @@ export class User extends Document {
   @Field(() => ID)
   id!: string;
 
+  @Field()
   @Prop({ required: true, enum: ['user', 'admin'], default: 'user' })
   role!: 'user' | 'admin';
 
@@ -30,7 +32,8 @@ export class User extends Document {
   @Prop()
   token?: string;
 
-  // TODO: add rule for favorite activities
+  @Field(() => [Activity], { nullable: 'items' })
+  favorites?: Activity[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
