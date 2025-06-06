@@ -1,4 +1,5 @@
-import { ActivityFragment } from "@/graphql/generated/types";
+import { ActivityFragment, User } from "@/graphql/generated/types";
+import { useAuth } from "@/hooks";
 import { useGlobalStyles } from "@/utils";
 import {
   Badge,
@@ -21,7 +22,18 @@ interface ActivityProps {
 export function Activity({ activity }: ActivityProps) {
   const { classes } = useGlobalStyles();
   const [favorite, setFavorite] = useState(false);
-  
+  const { user } = useAuth();
+
+  function returnDate(str: string): string {
+    const date = new Date(str);
+    return date.toLocaleDateString("fr-FR", {
+    //   weekday: "long",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+  }
+
   return (
     <Grid.Col span={4}>
       <Card
@@ -41,12 +53,12 @@ export function Activity({ activity }: ActivityProps) {
             variant="light"
             color={favorite ? "red" : "gray"}
             onClick={() => setFavorite((prev) => !prev)}
-			style={{
-				position: "absolute",
-				top: 10,
-				right: 10,
-				zIndex: 1
-			}}
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              zIndex: 1,
+            }}
           >
             {favorite ? <IconHeartFilled /> : <IconHeart />}
           </ActionIcon>
@@ -65,6 +77,11 @@ export function Activity({ activity }: ActivityProps) {
           <Badge color="yellow" variant="light">
             {`${activity.price}€/j`}
           </Badge>
+          {user?.role === "admin" && activity.createdAt ? (
+            <Badge color="blue" variant="light">
+              {`${returnDate(activity.createdAt)}`}
+            </Badge>
+          ) : null}
         </Group>
 
         <Text size="sm" color="dimmed" className={classes.ellipsis}>

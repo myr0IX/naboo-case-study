@@ -18,12 +18,12 @@ export class MeResolver {
     return this.userService.getById(context.jwtPayload.id);
   }
 
-  @Query(()=> Activity[])
-  @UseGuards(AuthGuard)
-  async getFavorites(@Context() context: ContextWithJWTPayload) {
-    const userId = context.jwtPayload.id;
-    const user = await this.userService.getById(userId);
+  // @Query(()=> Activity[])
+  // @UseGuards(AuthGuard)
+  // async getFavorites(@Context() context: ContextWithJWTPayload) {
+  //   const userId = context.jwtPayload.id;
+  //   const user = await this.userService.getById(userId);
 
-    return user
-  }
+  //   return user.favoriteActivities
+  // }
 }

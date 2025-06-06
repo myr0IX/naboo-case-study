@@ -110,18 +110,18 @@ export class ActivityResolver {
     return this.activityService.create(context.jwtPayload.id, createActivity);
   }
 
-  @Mutation()
-  @UseGuards(AuthGuard)
-  async addFavoriteToUser(
-    @Context() context: ContextWithJWTPayload,
-    @Args('id') id: string,
-  ) {
-    try {
-      const activity = await this.activityService.findOne(id);
-      this.userServices.addFavoriteActivity(context.jwtPayload.id, activity);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
+  // @Mutation()
+  // @UseGuards(AuthGuard)
+  // async addFavoriteToUser(
+  //   @Context() context: ContextWithJWTPayload,
+  //   @Args('id') id: string,
+  // ) {
+  //   try {
+  //     const activity = await this.activityService.findOne(id);
+  //     this.userServices.addFavoriteActivity(context.jwtPayload.id, activity);
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw error;
+  //   }
+  // }
 }

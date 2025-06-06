@@ -31,11 +31,10 @@ export const getServerSideProps: GetServerSideProps<
 
 export default function ActivityDetails({ activity }: ActivityDetailsProps) {
   const router = useRouter();
-
   return (
     <>
       <Head>
-        <title>{activity.name} | CDTR</title>
+        <title>{`${activity.name} | CDTR`}</title>
       </Head>
       <PageTitle title={activity.name} prevPath={router.back} />
       <Grid>
