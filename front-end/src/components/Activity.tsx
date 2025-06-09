@@ -1,6 +1,13 @@
-import { ActivityFragment, User } from "@/graphql/generated/types";
+import {
+  ActivityFragment,
+  MutationAddFavoriteArgs,
+  User,
+} from "@/graphql/generated/types";
+import { AddFavorite, RemoveFavorite } from "@/graphql/mutations/auth/favorite";
 import { useAuth } from "@/hooks";
+import { routes } from "@/routes";
 import { useGlobalStyles } from "@/utils";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Badge,
   Button,
@@ -17,17 +24,41 @@ import { useState } from "react";
 
 interface ActivityProps {
   activity: ActivityFragment;
+  isFavorite?: boolean;
 }
 
-export function Activity({ activity }: ActivityProps) {
+export function Activity({ activity, isFavorite}: ActivityProps) {
   const { classes } = useGlobalStyles();
-  const [favorite, setFavorite] = useState(false);
+  const [favorite, setFavorite] = useState(isFavorite ? isFavorite : false);
   const { user } = useAuth();
+
+  console.debug("is favorite:", isFavorite);
+  const [addFavorite] = useMutation(AddFavorite, {
+    refetchQueries: ["GetFavorites"],
+  });
+
+  const [removeFavorite] = useMutation(RemoveFavorite, {
+    refetchQueries: ["GetFavorites"],
+  });
+  const updateFavorite = (value: boolean) => {
+	console.debug("Updating favorite status:", value);
+    if (!user) {
+      console.warn("User not authenticated, cannot update favorite");
+      //   routes.push("/signin");
+      return value;
+    }
+    if (value) {
+		removeFavorite({ variables: { id: activity.id } });
+	} else {
+		addFavorite({ variables: { id: activity.id } });
+    }
+    return !value;
+  };
 
   function returnDate(str: string): string {
     const date = new Date(str);
     return date.toLocaleDateString("fr-FR", {
-    //   weekday: "long",
+      //   weekday: "long",
       year: "numeric",
       month: "numeric",
       day: "numeric",
@@ -52,7 +83,7 @@ export function Activity({ activity }: ActivityProps) {
           <ActionIcon
             variant="light"
             color={favorite ? "red" : "gray"}
-            onClick={() => setFavorite((prev) => !prev)}
+            onClick={() => setFavorite((prev) => updateFavorite(prev))}
             style={{
               position: "absolute",
               top: 10,
@@ -77,12 +108,12 @@ export function Activity({ activity }: ActivityProps) {
           <Badge color="yellow" variant="light">
             {`${activity.price}€/j`}
           </Badge>
+        </Group>
           {user?.role === "admin" && activity.createdAt ? (
             <Badge color="blue" variant="light">
               {`${returnDate(activity.createdAt)}`}
             </Badge>
           ) : null}
-        </Group>
 
         <Text size="sm" color="dimmed" className={classes.ellipsis}>
           {activity.description}

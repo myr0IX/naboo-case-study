@@ -76,6 +76,12 @@ export class UserService {
     return user;
   }
 
+  async getFavoriteActivities(userId: string): Promise<Activity[]> {
+    const user = await this.getById(userId);
+    await user.populate('favoriteActivities');
+    return user.favoriteActivities;
+  }
+
   async addFavoriteActivity(userId: string, activity: Activity): Promise<User> {
     const user = await this.userModel
       .findByIdAndUpdate(
@@ -83,7 +89,8 @@ export class UserService {
         { $addToSet: { favoriteActivities: activity._id } },
         { new: true },
       )
-      .populate('favoriteActivities');
+      .populate('favoriteActivities')
+      .exec();
 
     if (!user) {
       throw new Error('User not found');
@@ -97,10 +104,11 @@ export class UserService {
     activity: Activity,
   ): Promise<User> {
     const user = await this.userModel
-      .findByIdAndDelete(userId, {
-        $addToSet: { favoriteActivities: activity._id },
+      .findByIdAndUpdate(userId, {
+        $pull: { favoriteActivities: activity._id },
       })
-      .populate('favoriteActivities');
+      .populate('favoriteActivities')
+      .exec();
 
     if (!user) {
       throw new Error('User not found');

@@ -26,19 +26,18 @@ export class MeResolver {
   @UseGuards(AuthGuard)
   async getFavorites(@Context() context: ContextWithJWTPayload) {
     const userId = context.jwtPayload.id;
-    const user = await this.userService.getById(userId);
-
-    return user.favoriteActivities;
+    return await this.userService.getFavoriteActivities(userId);
   }
 
   @Mutation(() => [Activity])
   @UseGuards(AuthGuard)
   async addFavorite(
     @Context() context: ContextWithJWTPayload,
-    @Args('id') id: string,
+    @Args('id') activityId: string,
   ) {
+    console.debug('Adding favorite activity with ID:', activityId);
     try {
-      const activity = await this.activityService.findOne(id);
+      const activity = await this.activityService.findOne(activityId);
       const updateUser = await this.userService.addFavoriteActivity(
         context.jwtPayload.id,
         activity,
@@ -54,12 +53,14 @@ export class MeResolver {
   @UseGuards(AuthGuard)
   async removeFavorite(
     @Context() context: ContextWithJWTPayload,
-    @Args('id') id: string,
+    @Args('id') activityId: string,
   ) {
     try {
-      const activity = await this.activityService.findOne(id);
+      const userId = context.jwtPayload.id;
+      console.debug('Removing favorite activity with ID:', activityId);
+      const activity = await this.activityService.findOne(activityId);
       const updateUser = await this.userService.removeFavoriteActivity(
-        context.jwtPayload.id,
+        userId,
         activity,
       );
       return updateUser.favoriteActivities;

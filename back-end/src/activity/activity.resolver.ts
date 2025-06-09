@@ -27,7 +27,7 @@ import { ContextWithJWTPayload } from 'src/auth/types/context';
 export class ActivityResolver {
   constructor(
     private readonly activityService: ActivityService,
-    private readonly userServices: UserService, // use this var for get role of the user
+    private readonly userService: UserService, // use this var for get role of the user
   ) {}
 
   @ResolveField(() => ID)
@@ -42,23 +42,14 @@ export class ActivityResolver {
   }
 
   @ResolveField(() => Date)
-  @UseGuards(AuthGuard)
-  async createdAt(
-    @Parent() activity: Activity,
-    @Context() context: ContextWithJWTPayload,
-  ): Promise<Date> {
-    try {
-      if (!context.jwtPayload || !context.jwtPayload.id) {
-        throw new UnauthorizedException('JWT payload missing or invalid');
-      }
-      const user = await this.userServices.getById(context.jwtPayload.id);
-      if (user.role != 'admin') {
-        throw new ForbiddenException();
-      }
-    } catch (error) {
-      console.error('createdAt Error:');
-      console.error(String(error));
-    }
+  async createdAt(@Parent() activity: Activity): Promise<Date> {
+    // if (!context.jwtPayload || !context.jwtPayload.id) {
+    //   throw new UnauthorizedException('JWT payload missing or invalid');
+    // }
+    // const user = await this.userServices.getById(context.jwtPayload.id);
+    // if (user.role != 'admin') {
+    //   throw new ForbiddenException();
+    // }
     return activity.createdAt;
   }
   // TODO: add resolver for admin to get all activities with createdAt in bonus

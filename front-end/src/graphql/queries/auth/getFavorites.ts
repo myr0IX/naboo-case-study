@@ -1,7 +1,7 @@
 import ActivityFragment from "@/graphql/fragments/activity";
 import gql from "graphql-tag";
 
-const GetFavorite = gql`
+const GetFavorites = gql`
   query GetFavorites {
     getFavorites {
       ...Activity
@@ -10,4 +10,4 @@ const GetFavorite = gql`
   ${ActivityFragment}
 `;
 
-export default GetFavorite;
+export default GetFavorites;

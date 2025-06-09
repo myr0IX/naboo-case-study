@@ -15,7 +15,6 @@ interface ProfileProps {
 
 const Profile = (props: ProfileProps) => {
   const { user } = useAuth();
-
   return (
     <>
       <Head>
@@ -23,7 +22,7 @@ const Profile = (props: ProfileProps) => {
       </Head>
       <PageTitle title="Mon profil" />
       <Flex align="center" gap="md">
-        <Avatar color="cyan" radius="xl" size="lg" >
+        <Avatar color="cyan" radius="xl" size="lg">
           {user?.firstName[0]}
           {user?.lastName[0]}
         </Avatar>

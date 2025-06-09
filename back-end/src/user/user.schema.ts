@@ -34,7 +34,7 @@ export class User extends Document {
 
   @Field(() => [Activity])
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Activity' }], default: [] })
-  favoriteActivities!: Types.ObjectId[];
+  favoriteActivities!: Activity[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
