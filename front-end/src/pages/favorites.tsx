@@ -7,15 +7,42 @@ import {
 } from "@/graphql/generated/types";
 import GetFavorite from "@/graphql/queries/auth/getFavorites";
 import { withAuth } from "@/hocs";
-import { Button, Grid, Group } from "@mantine/core";
+import { Grid, Group } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  useSortable,
+  sortableKeyboardCoordinates,
+  SortableContext,
+  rectSwappingStrategy,
+  arrayMove,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+} from "@dnd-kit/core";
 
 interface FavoriteActivitiesProps {
   activities: GetFavoritesQuery["getFavorites"];
+}
+
+interface DndListProps {
+  items: ActivityFragment[];
+}
+
+interface SortableProps {
+  activity: ActivityFragment;
+  index: number;
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -32,32 +59,66 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 const FavoriteActivitiesList = ({ activities }: FavoriteActivitiesProps) => {
-  console.debug("FavoriteActivitiesList activities:", activities);
-  const [favorites, handlers] = useListState<ActivityFragment>(activities);
-  const saveNewOrder = async () => {
-    const ids = favorites.map((a) => a.id);
-    // Appelle ta mutation GraphQL ici
-    // await reorderFavorites({ variables: { newOrder: ids } });
+  const [favorites, handlers] = useListState(activities);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = favorites.findIndex((item) => item.id === active.id);
+      const newIndex = favorites.findIndex((item) => item.id === over?.id);
+      handlers.reorder({ from: oldIndex, to: newIndex });
+
+	  const newOrder = favorites.map((fav) => fav.id);
+	  await reorderFavorites({
+		variables: { newOrder }, // array of string ids
+	  });
+    }
+
+    // TODO: update db
   };
+
   return (
     <>
       <Head>
         <title>Activiées favoris | CDTR</title>
       </Head>
       <Group position="apart">
-        <PageTitle title="Vos activitées favoris" />
+        <PageTitle title="Activitées favoris" />
       </Group>
-      <Grid>
-        {activities.length > 0 ? (
-          activities.map((activity) => (
-            <Activity activity={activity} key={activity.id} isFavorite={true} />
-          ))
-        ) : (
+      {favorites.length > 0 ? (
+        <DndContext
+          id="favorites-dnd"
+          sensors={sensors}
+          onDragEnd={handleDragEnd}
+          collisionDetection={closestCenter}
+        >
+          <SortableContext items={favorites} strategy={horizontalListSortingStrategy}>
+            <DndList items={favorites} />
+          </SortableContext>
+        </DndContext>
+      ) : (
+        <Grid>
           <EmptyData />
-        )}
-      </Grid>
+        </Grid>
+      )}
     </>
   );
 };
+
+function DndList({ items }: DndListProps) {
+  return (
+    <Grid>
+      {items.map((item) => (
+        <Activity key={item.id} activity={item} isFavorite={true} isDnD={true} />
+      ))}
+    </Grid>
+  );
+}
 
 export default withAuth(FavoriteActivitiesList);

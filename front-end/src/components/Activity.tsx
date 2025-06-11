@@ -8,6 +8,9 @@ import { useAuth } from "@/hooks";
 import { routes } from "@/routes";
 import { useGlobalStyles } from "@/utils";
 import { useLazyQuery, useMutation } from "@apollo/client";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import {
   Badge,
   Button,
@@ -25,14 +28,19 @@ import { useState } from "react";
 interface ActivityProps {
   activity: ActivityFragment;
   isFavorite?: boolean;
+  isDnD?: boolean;
 }
 
-export function Activity({ activity, isFavorite}: ActivityProps) {
+export function Activity({
+  activity,
+  isFavorite = false
+}: ActivityProps) {
   const { classes } = useGlobalStyles();
-  const [favorite, setFavorite] = useState(isFavorite ? isFavorite : false);
+  const [favorite, setFavorite] = useState(isFavorite);
   const { user } = useAuth();
 
   console.debug("is favorite:", isFavorite);
+  console.debug("favorite:", favorite);
   const [addFavorite] = useMutation(AddFavorite, {
     refetchQueries: ["GetFavorites"],
   });
@@ -41,16 +49,15 @@ export function Activity({ activity, isFavorite}: ActivityProps) {
     refetchQueries: ["GetFavorites"],
   });
   const updateFavorite = (value: boolean) => {
-	console.debug("Updating favorite status:", value);
+    console.debug("Updating favorite status:", value);
     if (!user) {
       console.warn("User not authenticated, cannot update favorite");
-      //   routes.push("/signin");
       return value;
     }
     if (value) {
-		removeFavorite({ variables: { id: activity.id } });
-	} else {
-		addFavorite({ variables: { id: activity.id } });
+      removeFavorite({ variables: { id: activity.id } });
+    } else {
+      addFavorite({ variables: { id: activity.id } });
     }
     return !value;
   };
@@ -58,15 +65,30 @@ export function Activity({ activity, isFavorite}: ActivityProps) {
   function returnDate(str: string): string {
     const date = new Date(str);
     return date.toLocaleDateString("fr-FR", {
-      //   weekday: "long",
       year: "numeric",
       month: "numeric",
       day: "numeric",
     });
   }
 
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: activity.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: "grab",
+    display: "inline-block",
+  };
+
   return (
-    <Grid.Col span={4}>
+    <Grid.Col
+      span={4}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
+    >
       <Card
         shadow="sm"
         padding="lg"
@@ -109,11 +131,11 @@ export function Activity({ activity, isFavorite}: ActivityProps) {
             {`${activity.price}€/j`}
           </Badge>
         </Group>
-          {user?.role === "admin" && activity.createdAt ? (
-            <Badge color="blue" variant="light">
-              {`${returnDate(activity.createdAt)}`}
-            </Badge>
-          ) : null}
+        {user?.role === "admin" && activity.createdAt ? (
+          <Badge color="blue" variant="light">
+            {`${returnDate(activity.createdAt)}`}
+          </Badge>
+        ) : null}
 
         <Text size="sm" color="dimmed" className={classes.ellipsis}>
           {activity.description}
