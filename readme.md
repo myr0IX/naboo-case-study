@@ -14,6 +14,7 @@ frontend
 
 - nextjs (with page router)
 - mantine-ui
+- dnd-kit
 - axios
 - vitest
 - graphql
@@ -49,7 +50,3 @@ npm run generate-types
 user:
 email: user1@test.fr
 password: user1
-
-admin:
-email: admin@test.fr
-password : admin

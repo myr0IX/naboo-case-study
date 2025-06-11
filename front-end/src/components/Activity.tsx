@@ -4,26 +4,19 @@ import { useGlobalStyles } from "@/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import {
-  Badge,
-  Button,
-  Card,
-  Grid,
-  Group,
-  Image,
-  Text,
-} from "@mantine/core";
+import { Badge, Button, Card, Grid, Group, Image, Text } from "@mantine/core";
 import Link from "next/link";
 import { Favorite } from "./Favorite";
 
 interface ActivityProps {
   activity: ActivityFragment;
+  isDnd?: boolean;
 }
 
-export function Activity({ activity }: ActivityProps) {
+export function Activity({ activity, isDnd = false }: ActivityProps) {
   const { classes } = useGlobalStyles();
   const { user } = useAuth();
- 
+
   function returnDate(str: string): string {
     const date = new Date(str);
     return date.toLocaleDateString("fr-FR", {
@@ -38,8 +31,8 @@ export function Activity({ activity }: ActivityProps) {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    cursor: "grab",
+    transition: transition || undefined,
+    cursor: isDnd ? "grab" : "default",
     display: "inline-block",
   };
 

@@ -3,14 +3,11 @@ import { FavoritesItems } from "@/components/FavoritesItems";
 import { graphqlClient } from "@/graphql/apollo";
 import {
   GetFavoritesQuery,
-  GetFavoritesQueryVariables,
 } from "@/graphql/generated/types";
 import GetFavorites from "@/graphql/queries/auth/getFavorites";
 import { withAuth } from "@/hocs";
 import { useAuth } from "@/hooks";
-import { useLazyQuery } from "@apollo/client";
 import { Avatar, Flex, Grid, Loader, Text } from "@mantine/core";
-import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 
@@ -65,7 +62,6 @@ const Profile = (props: ProfileProps) => {
               <Text>{user?.email}</Text>
               <Text>{user?.firstName}</Text>
               <Text>{user?.lastName}</Text>
-              <Text>Role: {user?.role}</Text>
             </Flex>
           </Flex>
         </Grid.Col>

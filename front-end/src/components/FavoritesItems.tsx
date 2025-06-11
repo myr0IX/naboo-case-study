@@ -5,7 +5,7 @@ import { useListState } from "@mantine/hooks";
 import {
   sortableKeyboardCoordinates,
   SortableContext,
-  rectSwappingStrategy,
+  rectSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
 import {
@@ -66,7 +66,7 @@ export function FavoritesItems({ activities }: FavoriteActivitiesProps) {
       <Group position="apart">
         <Title order={2}>Favoris</Title>
       </Group>
-	  
+
       {favorites.length > 0 ? (
         <DndContext
           id="favorites-dnd"
@@ -74,7 +74,7 @@ export function FavoritesItems({ activities }: FavoriteActivitiesProps) {
           onDragEnd={handleDragEnd}
           collisionDetection={closestCenter}
         >
-          <SortableContext items={favorites} strategy={rectSwappingStrategy}>
+          <SortableContext items={favorites} strategy={rectSortingStrategy}>
             <DndList items={favorites} />
           </SortableContext>
         </DndContext>
@@ -91,10 +91,7 @@ function DndList({ items }: DndListProps) {
   return (
     <Grid>
       {items.map((item) => (
-        <Activity
-          key={item.id}
-          activity={item}
-        />
+        <Activity key={item.id} activity={item} isDnd={true}/>
       ))}
     </Grid>
   );

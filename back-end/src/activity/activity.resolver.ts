@@ -9,11 +9,7 @@ import {
   ResolveField,
   ID,
 } from '@nestjs/graphql';
-import {
-  ForbiddenException,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { ActivityService } from './activity.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserService } from 'src/user/user.service';
@@ -27,7 +23,7 @@ import { ContextWithJWTPayload } from 'src/auth/types/context';
 export class ActivityResolver {
   constructor(
     private readonly activityService: ActivityService,
-    private readonly userService: UserService, // use this var for get role of the user
+    private readonly userService: UserService,
   ) {}
 
   @ResolveField(() => ID)
@@ -40,19 +36,6 @@ export class ActivityResolver {
     await activity.populate('owner');
     return activity.owner;
   }
-
-  @ResolveField(() => Date)
-  async createdAt(@Parent() activity: Activity): Promise<Date> {
-    // if (!context.jwtPayload || !context.jwtPayload.id) {
-    //   throw new UnauthorizedException('JWT payload missing or invalid');
-    // }
-    // const user = await this.userServices.getById(context.jwtPayload.id);
-    // if (user.role != 'admin') {
-    //   throw new ForbiddenException();
-    // }
-    return activity.createdAt;
-  }
-  // TODO: add resolver for admin to get all activities with createdAt in bonus
 
   @Query(() => [Activity])
   async getActivities(): Promise<Activity[]> {
