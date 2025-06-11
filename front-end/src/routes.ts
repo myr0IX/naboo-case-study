@@ -5,7 +5,6 @@ export const routes: Route[] = [
   { label: "Découvrez des activités", route: "/discover" },
   { label: "Explorer", route: "/explorer" },
   { label: "Mes activités", route: "/my-activities", requiredAuth: true },
-  { label: "Favoris", route: "/favorites", requiredAuth: true },
   {
     label: "Utilisateur",
     icon: IconUserCircle,

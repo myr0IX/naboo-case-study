@@ -31,6 +31,7 @@ type Mutation {
   logout: Boolean!
   register(signUpInput: SignUpInput!): User!
   removeFavorite(id: String!): [Activity!]!
+  reorderFavorites(newOrder: [String!]!): [Activity!]!
 }
 
 type Query {

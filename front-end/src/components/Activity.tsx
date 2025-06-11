@@ -1,13 +1,9 @@
 import {
-  ActivityFragment,
-  MutationAddFavoriteArgs,
-  User,
+  ActivityFragment
 } from "@/graphql/generated/types";
 import { AddFavorite, RemoveFavorite } from "@/graphql/mutations/auth/favorite";
 import { useAuth } from "@/hooks";
-import { routes } from "@/routes";
 import { useGlobalStyles } from "@/utils";
-import { useLazyQuery, useMutation } from "@apollo/client";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -24,23 +20,18 @@ import {
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Favorite } from "./Favorite";
+import { useMutation } from "@apollo/client";
 
 interface ActivityProps {
   activity: ActivityFragment;
-  isFavorite?: boolean;
-  isDnD?: boolean;
 }
 
-export function Activity({
-  activity,
-  isFavorite = false
-}: ActivityProps) {
+export function Activity({ activity}: ActivityProps) {
   const { classes } = useGlobalStyles();
-  const [favorite, setFavorite] = useState(isFavorite);
+  const [favorite, setFavorite] = useState(false);
   const { user } = useAuth();
 
-  console.debug("is favorite:", isFavorite);
-  console.debug("favorite:", favorite);
   const [addFavorite] = useMutation(AddFavorite, {
     refetchQueries: ["GetFavorites"],
   });
@@ -48,16 +39,15 @@ export function Activity({
   const [removeFavorite] = useMutation(RemoveFavorite, {
     refetchQueries: ["GetFavorites"],
   });
-  const updateFavorite = (value: boolean) => {
-    console.debug("Updating favorite status:", value);
+  const updateFavorite = async (value: boolean) => {
     if (!user) {
       console.warn("User not authenticated, cannot update favorite");
       return value;
     }
     if (value) {
-      removeFavorite({ variables: { id: activity.id } });
+      await removeFavorite({ variables: { id: activity.id } });
     } else {
-      addFavorite({ variables: { id: activity.id } });
+      await addFavorite({ variables: { id: activity.id } });
     }
     return !value;
   };
@@ -102,19 +92,7 @@ export function Activity({
             height={160}
             alt="random image of city"
           />
-          <ActionIcon
-            variant="light"
-            color={favorite ? "red" : "gray"}
-            onClick={() => setFavorite((prev) => updateFavorite(prev))}
-            style={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              zIndex: 1,
-            }}
-          >
-            {favorite ? <IconHeartFilled /> : <IconHeart />}
-          </ActionIcon>
+          <Favorite activityId={activity.id} />
         </Card.Section>
 
         <Group position="apart" mt="md" mb="xs">

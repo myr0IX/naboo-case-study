@@ -1,6 +1,6 @@
 import { Context, Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { UserService } from '../../user/user.service';
-import { UseGuards } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../auth/auth.guard';
 import { User } from 'src/user/user.schema';
 import { ContextWithJWTPayload } from 'src/auth/types/context';
@@ -26,7 +26,7 @@ export class MeResolver {
   @UseGuards(AuthGuard)
   async getFavorites(@Context() context: ContextWithJWTPayload) {
     const userId = context.jwtPayload.id;
-    return await this.userService.getFavoriteActivities(userId);
+    return await this.userService.getFavoritesActivities(userId);
   }
 
   @Mutation(() => [Activity])
@@ -64,6 +64,23 @@ export class MeResolver {
         activity,
       );
       return updateUser.favoriteActivities;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  @Mutation(() => [Activity])
+  @UseGuards(AuthGuard)
+  async reorderFavorites(
+    @Context() context: ContextWithJWTPayload,
+    @Args({ name: 'newOrder', type: () => [String] }) newOrder: string[],
+  ) {
+    try {
+      return this.userService.reorderFavoriteActivities(
+        context.jwtPayload.id,
+        newOrder,
+      );
     } catch (error) {
       console.error(error);
       throw error;

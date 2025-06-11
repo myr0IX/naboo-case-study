@@ -76,10 +76,43 @@ export class UserService {
     return user;
   }
 
-  async getFavoriteActivities(userId: string): Promise<Activity[]> {
+  async getFavoritesActivities(userId: string): Promise<Activity[]> {
     const user = await this.getById(userId);
     await user.populate('favoriteActivities');
     return user.favoriteActivities;
+  }
+
+  async reorderFavoriteActivities(
+    userId: string,
+    newOrder: string[],
+  ): Promise<Activity[]> {
+    const user = await this.getById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const currentFavs = user.favoriteActivities.map((id) => id.toString());
+    const isValid = newOrder.every((id) => currentFavs.includes(id));
+    if (!isValid) {
+      throw new NotFoundException(
+        'Some activities are not in current favorites',
+      );
+    }
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { favoriteActivities: newOrder },
+        { new: true },
+      )
+      .populate('favoriteActivities')
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    return updatedUser.favoriteActivities;
   }
 
   async addFavoriteActivity(userId: string, activity: Activity): Promise<User> {
@@ -93,7 +126,7 @@ export class UserService {
       .exec();
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     return user;
