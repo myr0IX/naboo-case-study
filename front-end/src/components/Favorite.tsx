@@ -17,15 +17,15 @@ export function Favorite({ activityId }: FavoritePros) {
   const { user } = useAuth();
 
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasFetched, setHasFetched] = useState(false);
+  //   const [isLoading, setIsLoading] = useState(true);
+  //   const [hasFetched, setHasFetched] = useState(false);
 
   const [addFavorite] = useMutation(AddFavorite, {
-    refetchQueries: ["AddFavorite"],
+    refetchQueries: [{ query: GetFavorites }],
   });
 
   const [removeFavorite] = useMutation(RemoveFavorite, {
-    refetchQueries: ["RemoveFavorite"],
+    refetchQueries: [{ query: GetFavorites }],
   });
 
   const updateFavorite = async () => {
@@ -52,7 +52,7 @@ export function Favorite({ activityId }: FavoritePros) {
 
   useEffect(() => {
     if (!user) {
-      setIsLoading(false);
+      //   setIsLoading(false);
       return;
     }
     const fetchFavorites = async () => {
@@ -64,8 +64,6 @@ export function Favorite({ activityId }: FavoritePros) {
         setIsFavorite(isFav);
       } catch (error) {
         console.error(error);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchFavorites();

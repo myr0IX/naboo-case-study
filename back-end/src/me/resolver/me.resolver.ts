@@ -1,6 +1,6 @@
 import { Context, Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { UserService } from '../../user/user.service';
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../auth/auth.guard';
 import { User } from 'src/user/user.schema';
 import { ContextWithJWTPayload } from 'src/auth/types/context';
@@ -35,7 +35,6 @@ export class MeResolver {
     @Context() context: ContextWithJWTPayload,
     @Args('id') activityId: string,
   ) {
-    console.debug('Adding favorite activity with ID:', activityId);
     try {
       const activity = await this.activityService.findOne(activityId);
       const updateUser = await this.userService.addFavoriteActivity(
@@ -57,7 +56,6 @@ export class MeResolver {
   ) {
     try {
       const userId = context.jwtPayload.id;
-      console.debug('Removing favorite activity with ID:', activityId);
       const activity = await this.activityService.findOne(activityId);
       const updateUser = await this.userService.removeFavoriteActivity(
         userId,

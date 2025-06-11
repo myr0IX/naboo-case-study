@@ -1,7 +1,4 @@
-import {
-  ActivityFragment
-} from "@/graphql/generated/types";
-import { AddFavorite, RemoveFavorite } from "@/graphql/mutations/auth/favorite";
+import { ActivityFragment } from "@/graphql/generated/types";
 import { useAuth } from "@/hooks";
 import { useGlobalStyles } from "@/utils";
 import { useSortable } from "@dnd-kit/sortable";
@@ -15,43 +12,18 @@ import {
   Group,
   Image,
   Text,
-  ActionIcon,
 } from "@mantine/core";
-import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import Link from "next/link";
-import { useState } from "react";
 import { Favorite } from "./Favorite";
-import { useMutation } from "@apollo/client";
 
 interface ActivityProps {
   activity: ActivityFragment;
 }
 
-export function Activity({ activity}: ActivityProps) {
+export function Activity({ activity }: ActivityProps) {
   const { classes } = useGlobalStyles();
-  const [favorite, setFavorite] = useState(false);
   const { user } = useAuth();
-
-  const [addFavorite] = useMutation(AddFavorite, {
-    refetchQueries: ["GetFavorites"],
-  });
-
-  const [removeFavorite] = useMutation(RemoveFavorite, {
-    refetchQueries: ["GetFavorites"],
-  });
-  const updateFavorite = async (value: boolean) => {
-    if (!user) {
-      console.warn("User not authenticated, cannot update favorite");
-      return value;
-    }
-    if (value) {
-      await removeFavorite({ variables: { id: activity.id } });
-    } else {
-      await addFavorite({ variables: { id: activity.id } });
-    }
-    return !value;
-  };
-
+ 
   function returnDate(str: string): string {
     const date = new Date(str);
     return date.toLocaleDateString("fr-FR", {

@@ -1,5 +1,4 @@
 import { Activity, EmptyData, PageTitle } from "@/components";
-import { graphqlClient } from "@/graphql/apollo";
 import { ActivityFragment, GetFavoritesQuery } from "@/graphql/generated/types";
 import { Grid, Group, Title } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
@@ -48,7 +47,6 @@ export function FavoritesItems({ activities }: FavoriteActivitiesProps) {
     const newIndex = favorites.findIndex((item) => item.id === over.id);
 
     const updated = arrayMove(favorites, oldIndex, newIndex);
-    console.debug(updated);
     handlers.setState(updated);
 
     setIsLoading(true);
@@ -95,8 +93,6 @@ function DndList({ items }: DndListProps) {
         <Activity
           key={item.id}
           activity={item}
-          isFavorite={true}
-          isDnD={true}
         />
       ))}
     </Grid>
