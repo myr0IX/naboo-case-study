@@ -66,6 +66,7 @@ export function FavoritesItems({ activities }: FavoriteActivitiesProps) {
       <Group position="apart">
         <Title order={2}>Favoris</Title>
       </Group>
+	  
       {favorites.length > 0 ? (
         <DndContext
           id="favorites-dnd"

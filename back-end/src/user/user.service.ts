@@ -92,17 +92,12 @@ export class UserService {
     }
 
     const currentFavs = user.favoriteActivities.map((id) => id.toString());
-    const isValid = newOrder.every((id) => currentFavs.includes(id));
-    if (!isValid) {
-      throw new NotFoundException(
-        'Some activities are not in current favorites',
-      );
-    }
+    const validNewOrder = newOrder.filter((id) => currentFavs.includes(id));
 
     const updatedUser = await this.userModel
       .findByIdAndUpdate(
         userId,
-        { favoriteActivities: newOrder },
+        { favoriteActivities: validNewOrder },
         { new: true },
       )
       .populate('favoriteActivities')

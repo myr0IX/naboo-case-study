@@ -2,7 +2,7 @@ import { graphqlClient } from "@/graphql/apollo";
 import { GetFavoritesQuery } from "@/graphql/generated/types";
 import { AddFavorite, RemoveFavorite } from "@/graphql/mutations/auth/favorite";
 import GetFavorites from "@/graphql/queries/auth/getFavorites";
-import { useAuth } from "@/hooks";
+import { useAuth, useSnackbar } from "@/hooks";
 import { useMutation } from "@apollo/client";
 
 import { ActionIcon } from "@mantine/core";
@@ -15,10 +15,10 @@ interface FavoritePros {
 
 export function Favorite({ activityId }: FavoritePros) {
   const { user } = useAuth();
+  const snackbar = useSnackbar();
+
 
   const [isFavorite, setIsFavorite] = useState(false);
-  //   const [isLoading, setIsLoading] = useState(true);
-  //   const [hasFetched, setHasFetched] = useState(false);
 
   const [addFavorite] = useMutation(AddFavorite, {
     refetchQueries: [{ query: GetFavorites }],
@@ -32,12 +32,13 @@ export function Favorite({ activityId }: FavoritePros) {
     try {
       if (!user) {
         setIsFavorite(false);
-        //   console.warn("User not authenticated, cannot update favorite");
+        snackbar.error("Connexion requise");
         return;
       }
       if (isFavorite === true) {
         await removeFavorite({ variables: { id: activityId } });
       } else {
+		snackbar.success("Favori ajouté avec succès");
         await addFavorite({ variables: { id: activityId } });
       }
       setIsFavorite(!isFavorite);
@@ -52,7 +53,6 @@ export function Favorite({ activityId }: FavoritePros) {
 
   useEffect(() => {
     if (!user) {
-      //   setIsLoading(false);
       return;
     }
     const fetchFavorites = async () => {
