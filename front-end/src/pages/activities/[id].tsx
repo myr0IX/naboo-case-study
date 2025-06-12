@@ -1,17 +1,37 @@
 import { PageTitle } from "@/components";
+import { Favorite } from "@/components/Favorite";
 import { graphqlClient } from "@/graphql/apollo";
 import {
   GetActivityQuery,
   GetActivityQueryVariables,
 } from "@/graphql/generated/types";
 import GetActivity from "@/graphql/queries/activity/getActivity";
-import { Badge, Flex, Grid, Group, Image, Text } from "@mantine/core";
+import { useAuth } from "@/hooks";
+import {
+  Badge,
+  Container,
+  Flex,
+  Grid,
+  Group,
+  Image,
+  Text,
+} from "@mantine/core";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { relative } from "path";
 
 interface ActivityDetailsProps {
   activity: GetActivityQuery["getActivity"];
+}
+
+function returnDate(str: string): string {
+  const date = new Date(str);
+  return date.toLocaleDateString("fr-FR", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -31,6 +51,7 @@ export const getServerSideProps: GetServerSideProps<
 
 export default function ActivityDetails({ activity }: ActivityDetailsProps) {
   const router = useRouter();
+  const { user } = useAuth();
   return (
     <>
       <Head>
@@ -39,13 +60,16 @@ export default function ActivityDetails({ activity }: ActivityDetailsProps) {
       <PageTitle title={activity.name} prevPath={router.back} />
       <Grid>
         <Grid.Col span={7}>
-          <Image
-            src="https://dummyimage.com/640x4:3"
-            radius="md"
-            alt="random image of city"
-            width="100%"
-            height="400"
-          />
+          <Container style={{ position: "relative", display: "inline-block", padding: 0 }}>
+            <Image
+              src="https://dummyimage.com/640x4:3"
+              radius="md"
+              alt="random image of city"
+              width="100%"
+              height="400"
+            />
+            <Favorite activityId={activity.id} />
+          </Container>
         </Grid.Col>
         <Grid.Col span={5}>
           <Flex direction="column" gap="md">
@@ -56,6 +80,11 @@ export default function ActivityDetails({ activity }: ActivityDetailsProps) {
               <Badge color="yellow" variant="light">
                 {`${activity.price}€/j`}
               </Badge>
+              {user?.role === "admin" && activity.createdAt ? (
+                <Badge color="blue" variant="light">
+                  {`${returnDate(activity.createdAt)}`}
+                </Badge>
+              ) : null}
             </Group>
             <Text size="sm">{activity.description}</Text>
             <Text size="sm" color="dimmed">
